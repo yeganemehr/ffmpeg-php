@@ -1,7 +1,7 @@
-<?php     
+<?php
 /**
  * FFmpegMovie represents a movie file
- * 
+ *
  * @author char0n (Vladimír Gorej, gorej@codescale.net)
  * @package FFmpegPHP
  * @license New BSD
@@ -10,7 +10,7 @@
 class FFmpegMovie implements Serializable {
 
     protected static $REGEX_DURATION          = '/Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2})(\.([0-9]+))?/';
-    protected static $REGEX_FRAME_RATE        = '/([0-9\.]+\sfps,\s)?([0-9\.]+)\stbr/';    
+    protected static $REGEX_FRAME_RATE        = '/([0-9\.]+\sfps,\s)?([0-9\.]+)\stbr/';
     protected static $REGEX_COMMENT           = '/comment\s*(:|=)\s*(.+)/i';
     protected static $REGEX_TITLE             = '/title\s*(:|=)\s*(.+)/i';
     protected static $REGEX_ARTIST            = '/(artist|author)\s*(:|=)\s*(.+)/i';
@@ -20,7 +20,7 @@ class FFmpegMovie implements Serializable {
     protected static $REGEX_YEAR              = '/year\s*(:|=)\s*(.+)/i';
     protected static $REGEX_FRAME_WH          = '/Video:.+?([1-9][0-9]*)x([1-9][0-9]*)/';
     protected static $REGEX_PIXEL_FORMAT      = '/Video: [^,]+, ([^,]+)/';
-    protected static $REGEX_BITRATE           = '/bitrate: ([0-9]+) kb\/s/';    
+    protected static $REGEX_BITRATE           = '/bitrate: ([0-9]+) kb\/s/';
     protected static $REGEX_VIDEO_BITRATE     = '/Video:.+?([0-9]+) kb\/s/';
     protected static $REGEX_AUDIO_BITRATE     = '/Audio:.+?([0-9]+) kb\/s/';
     protected static $REGEX_AUDIO_SAMPLE_RATE = '/Audio:.+?([0-9]+) Hz/';
@@ -33,170 +33,170 @@ class FFmpegMovie implements Serializable {
 
     /**
      * FFmpeg binary
-     * 
+     *
      * @var string
      */
     protected $ffmpegBinary;
     /**
      * Output provider
-     * 
+     *
      * @var OutputProvider
      */
     protected $provider;
-    
+
     /**
     * Movie file path
-    * 
+    *
     * @var string
     */
     protected $movieFile;
-                          
+
     /**
     * provider output
-    * 
+    *
     * @var string
     */
     protected $output;
-    
+
     /**
     * Movie duration in seconds
-    * 
+    *
     * @var float
     */
-    protected $duration;    
+    protected $duration;
     /**
     * Current frame index
-    * 
+    *
     * @var int
     */
     protected $frameCount;
     /**
     * Movie frame rate
-    * 
+    *
     * @var float
     */
     protected $frameRate;
     /**
     * Comment ID3 field
-    * 
+    *
     * @var string
     */
     protected $comment;
     /**
     * Title ID3 field
-    * 
+    *
     * @var string
     */
     protected $title;
     /**
     * Author ID3 field
-    * 
+    *
     * @var string
     */
     protected $artist;
     /**
     * Copyright ID3 field
-    * 
+    *
     * @var string
     */
     protected $copyright;
     /**
     * Genre ID3 field
-    * 
+    *
     * @var string
-    */    
+    */
     protected $genre;
     /**
     * Track ID3 field
-    * 
+    *
     * @var int
     */
     protected $trackNumber;
     /**
     * Year ID3 field
-    * 
+    *
     * @var int
     */
     protected $year;
     /**
     * Movie frame height
-    * 
+    *
     * @var int
     */
     protected $frameHeight;
     /**
     * Movie frame width
-    * 
+    *
     * @var int
     */
     protected $frameWidth;
     /**
     * Movie pixel format
-    * 
+    *
     * @var string
     */
     protected $pixelFormat;
     /**
     * Movie bit rate combined with audio bit rate
-    * 
+    *
     * @var int
     */
-    protected $bitRate;    
+    protected $bitRate;
     /**
     * Movie video stream bit rate
-    * 
+    *
     * @var int
     */
-    protected $videoBitRate;   
+    protected $videoBitRate;
     /**
     * Movie audio stream bit rate
-    * 
+    *
     * @var int
     */
     protected $audioBitRate;
     /**
     * Audio sample rate
-    * 
+    *
     * @var int
     */
     protected $audioSampleRate;
     /**
     * Current frame number
-    * 
+    *
     * @var int
     */
     protected $frameNumber;
     /**
     * Movie video cocec
-    * 
-    * @var string 
+    *
+    * @var string
     */
-    protected $videoCodec;    
+    protected $videoCodec;
     /**
     * Movie audio coded
-    * 
+    *
     * @var string
     */
     protected $audioCodec;
     /**
     * Movie audio channels
-    * 
+    *
     * @var int
     */
     protected $audioChannels;
-    
+
     /**
-    * Open a video or audio file and return it as an FFmpegMovie object. 
+    * Open a video or audio file and return it as an FFmpegMovie object.
     * If ffmpeg and ffprobe are both installed on host system, ffmpeg
     * gets priority in extracting info from the movie file. However
     * to override this default behaviour use any implementation of OutputProvider interface
     * as the second constructor argumentwhile instantiating
-    * 
-    * 
+    *
+    *
     * @param string $moviePath full path to the movie file
     * @param OutputProvider $outputProvider provides parsable output
     * @param string $ffmpegBinary ffmpeg executable, if $outputProvider not specified
-    * @throws Exception 
+    * @throws Exception
     * @return FFmpegMovie
     */
     public function __construct($moviePath, OutputProvider $outputProvider = null, $ffmpegBinary = 'ffmpeg') {
@@ -205,13 +205,13 @@ class FFmpegMovie implements Serializable {
         $this->ffmpegBinary    = $ffmpegBinary;
         if ($outputProvider === null) {
             $outputProvider = new FFmpegOutputProvider($ffmpegBinary);
-        }   
+        }
         $this->setProvider($outputProvider);
     }
-    
+
     /**
      * Setting provider implementation
-     * 
+     *
      * @param OutputProvider $outputProvider
      */
     public function setProvider(OutputProvider $outputProvider) {
@@ -219,59 +219,59 @@ class FFmpegMovie implements Serializable {
         $this->provider->setMovieFile($this->movieFile);
         $this->output = $this->provider->getOutput();
     }
-    
+
     /**
      * Getting current provider implementation
-     * 
+     *
      * @return OutputProvider
      */
     public function getProvider() {
         return $this->provider;
     }
-    
+
     /**
     * Return the duration of a movie or audio file in seconds.
-    * 
+    *
     * @return float movie duration in seconds
     */
     public function getDuration() {
         if ($this->duration === null) {
             $match = array();
             preg_match(self::$REGEX_DURATION, $this->output, $match);
-            if (array_key_exists(1, $match) && array_key_exists(2, $match) && array_key_exists(3, $match)) {                
+            if (array_key_exists(1, $match) && array_key_exists(2, $match) && array_key_exists(3, $match)) {
                 $hours     = (int)    $match[1];
                 $minutes   = (int)    $match[2];
-                $seconds   = (int)    $match[3];                        
+                $seconds   = (int)    $match[3];
                 $fractions = (float)  ((array_key_exists(5, $match)) ? "0.$match[5]" : 0.0);
-                
-                $this->duration = (($hours * (3600)) + ($minutes * 60) + $seconds + $fractions);        
+
+                $this->duration = (($hours * (3600)) + ($minutes * 60) + $seconds + $fractions);
             } else {
                 $this->duration = 0.0;
-            }                        
-            
+            }
+
             return $this->duration;
         }
-        
-        return $this->duration;        
+
+        return $this->duration;
     }
-    
+
     /**
     * Return the number of frames in a movie or audio file.
-    * 
+    *
     * @return int
     */
     public function getFrameCount() {
         if ($this->frameCount === null) {
-            $this->frameCount = (int) ($this->getDuration() * $this->getFrameRate());            
+            $this->frameCount = (int) ($this->getDuration() * $this->getFrameRate());
         }
-        
+
         return $this->frameCount;
     }
-    
+
     /**
     * Return the frame rate of a movie in fps.
     *
-    * @return float 
+    * @return float
     */
     public function getFrameRate() {
         if ($this->frameRate === null) {
@@ -279,23 +279,23 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_FRAME_RATE, $this->output, $match);
             $this->frameRate = (float) ((array_key_exists(1, $match)) ? $match[1] : 0.0);
         }
-        
+
         return $this->frameRate;
     }
-    
+
     /**
     * Return the path and name of the movie file or audio file.
     *
-    * @return string 
+    * @return string
     */
     public function getFilename() {
         return $this->movieFile;
     }
-    
+
     /**
     * Return the comment field from the movie or audio file.
     *
-    * @return string 
+    * @return string
     */
     public function getComment() {
         if ($this->comment === null) {
@@ -303,14 +303,14 @@ class FFmpegMovie implements Serializable {
              preg_match(self::$REGEX_COMMENT, $this->output, $match);
              $this->comment = (array_key_exists(2, $match)) ? trim($match[2]) : '';
         }
-        
+
         return $this->comment;
     }
-    
+
     /**
     * Return the title field from the movie or audio file.
     *
-    * @return string 
+    * @return string
     */
     public function getTitle() {
         if ($this->title === null) {
@@ -318,13 +318,13 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_TITLE, $this->output, $match);
             $this->title = (array_key_exists(2, $match)) ? trim($match[2]) : '';
         }
-        
+
         return $this->title;
     }
-    
+
     /**
     * Return the author field from the movie or the artist ID3 field from an mp3 file; alias $movie->getArtist()
-    * 
+    *
     * @return string
     */
     public function getArtist() {
@@ -333,23 +333,23 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_ARTIST, $this->output, $match);
             $this->artist = (array_key_exists(3, $match)) ? trim($match[3]) : '';
         }
-        
+
         return $this->artist;
     }
-    
+
     /**
     * Return the author field from the movie or the artist ID3 field from an mp3 file.
-    * 
+    *
     * @return string
     */
     public function getAuthor() {
         return $this->getArtist();
     }
-    
+
     /**
     * Return the copyright field from the movie or audio file.
     *
-    * @return string 
+    * @return string
     */
     public function getCopyright() {
         if ($this->copyright === null) {
@@ -357,14 +357,14 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_COPYRIGHT, $this->output, $match);
             $this->copyright = (array_key_exists(2, $match)) ? trim($match[2]) : '';
         }
-        
+
         return $this->copyright;
     }
-    
+
     /**
     * Return the genre ID3 field from an mp3 file.
     *
-    * @return string 
+    * @return string
     */
     public function getGenre() {
         if ($this->genre === null) {
@@ -372,13 +372,13 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_GENRE, $this->output, $match);
             $this->genre = (array_key_exists(2, $match)) ? trim($match[2]) : '';
         }
-        
+
         return $this->genre;
     }
-    
+
     /**
     * Return the track ID3 field from an mp3 file.
-    * 
+    *
     * @return int
     */
     public function getTrackNumber() {
@@ -387,13 +387,13 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_TRACK_NUMBER, $this->output, $match);
             $this->trackNumber = (int) ((array_key_exists(2, $match)) ? $match[2] : 0);
         }
-        
-        return $this->trackNumber;    
+
+        return $this->trackNumber;
     }
-    
+
     /**
     * Return the year ID3 field from an mp3 file.
-    * 
+    *
     * @return int
     */
     public function getYear() {
@@ -402,13 +402,13 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_YEAR, $this->output, $match);
 	    $this->year = (int) ((array_key_exists(2, $match)) ? $match[2] : 0);
         }
-        
-        return $this->year;    
-    }    
-    
+
+        return $this->year;
+    }
+
     /**
     * Return the height of the movie in pixels.
-    * 
+    *
     * @return int
     */
     public function getFrameHeight() {
@@ -423,27 +423,27 @@ class FFmpegMovie implements Serializable {
                 $this->frameHeight = 0;
             }
         }
-        
+
         return $this->frameHeight;
     }
-    
+
     /**
     * Return the width of the movie in pixels.
     *
-    * @return int 
+    * @return int
     */
     public function getFrameWidth() {
         if ($this->frameWidth === null) {
             $this->getFrameHeight();
         }
-        
+
         return $this->frameWidth;
     }
-    
+
     /**
     * Return the pixel format of the movie.
     *
-    * @return string 
+    * @return string
     */
     public function getPixelFormat() {
         if ($this->pixelFormat === null) {
@@ -451,13 +451,13 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_PIXEL_FORMAT, $this->output, $match);
             $this->pixelFormat = (array_key_exists(1, $match)) ? trim($match[1]) : '';
         }
-        
+
         return $this->pixelFormat;
     }
-    
+
     /**
     * Return the bit rate of the movie or audio file in bits per second.
-    * 
+    *
     * @return int
     */
     public function getBitRate() {
@@ -466,16 +466,16 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_BITRATE, $this->output, $match);
             $this->bitRate = (int) ((array_key_exists(1, $match)) ? ($match[1] * 1000) : 0);
         }
-        
-        return $this->bitRate;    
+
+        return $this->bitRate;
     }
-    
+
     /**
     * Return the bit rate of the video in bits per second.
-    *  
+    *
     * NOTE: This only works for files with constant bit rate.
     *
-    * @return int 
+    * @return int
     */
     public function getVideoBitRate() {
         if ($this->videoBitRate === null) {
@@ -483,14 +483,14 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_VIDEO_BITRATE, $this->output, $match);
             $this->videoBitRate = (int) ((array_key_exists(1, $match)) ? ($match[1] * 1000) : 0);
         }
-        
+
         return $this->videoBitRate;
     }
-    
+
     /**
     * Return the audio bit rate of the media file in bits per second.
     *
-    * @return int 
+    * @return int
     */
     public function getAudioBitRate() {
         if ($this->audioBitRate === null) {
@@ -498,14 +498,14 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_AUDIO_BITRATE, $this->output, $match);
             $this->audioBitRate = (int) ((array_key_exists(1, $match)) ? ($match[1] * 1000) : 0);
         }
-        
+
         return $this->audioBitRate;
     }
-    
+
     /**
     * Return the audio sample rate of the media file in bits per second.
     *
-    * @return int 
+    * @return int
     */
     public function getAudioSampleRate() {
         if ($this->audioSampleRate === null) {
@@ -513,23 +513,23 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_AUDIO_SAMPLE_RATE, $this->output, $match);
             $this->audioSampleRate = (int) ((array_key_exists(1, $match)) ? $match[1] : 0);
         }
-        
+
         return $this->audioSampleRate;
     }
-    
+
     /**
     * Return the current frame index.
     *
-    * @return int 
+    * @return int
     */
     public function getFrameNumber() {
         return ($this->frameNumber == 0) ? 1 : $this->frameNumber;
     }
-    
+
     /**
     * Return the name of the video codec used to encode this movie as a string.
-    * 
-    * @return string 
+    *
+    * @return string
     */
     public function getVideoCodec() {
         if ($this->videoCodec === null) {
@@ -537,14 +537,14 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_VIDEO_CODEC, $this->output, $match);
             $this->videoCodec = (array_key_exists(1, $match)) ? trim($match[1]) : '';
         }
-        
+
         return $this->videoCodec;
     }
-    
+
     /**
     * Return the name of the audio codec used to encode this movie as a string.
     *
-    * @return string 
+    * @return string
     */
     public function getAudioCodec() {
         if ($this->audioCodec === null) {
@@ -552,13 +552,13 @@ class FFmpegMovie implements Serializable {
             preg_match(self::$REGEX_AUDIO_CODEC, $this->output, $match);
             $this->audioCodec = (array_key_exists(1, $match)) ? trim($match[1]) : '';
         }
-        
+
         return $this->audioCodec;
     }
-    
+
     /**
     * Return the number of audio channels in this movie as an integer.
-    * 
+    *
     * @return int
     */
     public function getAudioChannels() {
@@ -575,40 +575,40 @@ class FFmpegMovie implements Serializable {
                         $this->audioChannels = 6; break;
                     case '5:1':
                         $this->audioChannels = 6; break;
-                    default: 
+                    default:
                         $this->audioChannels = (int) $match[1];
-                }                 
+                }
             } else {
                 $this->audioChannels = 0;
             }
         }
-        
+
         return $this->audioChannels;
     }
-    
+
     /**
     * Return boolean value indicating whether the movie has an audio stream.
     *
-    * @return boolean 
+    * @return boolean
     */
     public function hasAudio() {
         return (boolean) preg_match(self::$REGEX_HAS_AUDIO, $this->output);
     }
-    
+
     /**
     * Return boolean value indicating whether the movie has a video stream.
     *
-    * @return boolean 
+    * @return boolean
     */
     public function hasVideo() {
         return (boolean) preg_match(self::$REGEX_HAS_VIDEO, $this->output);
     }
-    
+
     /**
     * Returns a frame from the movie as an FFmpegFrame object. Returns false if the frame was not found.
     *
-    *   * framenumber - Frame from the movie to return. If no framenumber is specified, returns the next frame of the movie. 
-    * 
+    *   * framenumber - Frame from the movie to return. If no framenumber is specified, returns the next frame of the movie.
+    *
     * @param int $framenumber
     * @param int $height
 	* @param int $width
@@ -616,25 +616,25 @@ class FFmpegMovie implements Serializable {
     * @return FFmpegFrame|boolean
     */
 	public function getFrame($framenumber = null, $height = null, $width = null, $quality = null) {
-    	$framePos = ($framenumber === null) ? $this->frameNumber : (((int) $framenumber) - 1);    
-        
+    	$framePos = ($framenumber === null) ? $this->frameNumber : (((int) $framenumber) - 1);
+
 		// Frame position out of range
         if (!is_numeric($framePos) || $framePos < 0 || $framePos > $this->getFrameCount()) {
             return false;
         }
-		
+
 	    $frameTime     = round((($framePos / $this->getFrameCount()) * $this->getDuration()), 4);
-		
+
 		$frame = $this->getFrameAtTime($frameTime, $height, $width, $quality);
-		
+
 	    // Increment internal frame number
         if ($framenumber === null) {
             ++$this->frameNumber;
         }
-		
+
 		return $frame;
 	}
-	
+
     /**
      * Returns a frame from the movie as an FFmpegFrame object. Returns false if the frame was not found.
      *
@@ -652,33 +652,35 @@ class FFmpegMovie implements Serializable {
     */
 	 public function getFrameAtTime($seconds = null, $width = null, $height = null, $quality = null, $frameFilePath = null, &$output = null) {
         // Set frame position for frame extraction
-        $frameTime = ($seconds === null) ? 0 : $seconds;    
-        
+        $frameTime = ($seconds === null) ? 0 : $seconds;
+
         // time out of range
         if (!is_numeric($frameTime) || $frameTime < 0 || $frameTime > $this->getDuration()) {
 			throw(new Exception('Frame time is not in range '.$frameTime.'/'.$this->getDuration().' '.$this->getFilename()));
         }
-        
+
         if(is_numeric($height) && is_numeric($width)) {
             $image_size = ' -s '.$width.'x'.$height;
         } else {
             $image_size = '';
         }
-        
+
         if(is_numeric($quality)) {
             $quality = ' -qscale '.$quality;
         } else {
             $quality = '';
         }
-        
+
 		$deleteTmp = false;
         if ($frameFilePath === null) {
-            $frameFilePath = sys_get_temp_dir().DIRECTORY_SEPARATOR.uniqid('frame', true).'.jpg';
+            $frameFilePath = tempnam(sys_get_temp_dir(), 'frame');
+			unlink($frameFilePath);
+			$frameFilePath .= '.jpg';
 			$deleteTmp = true;
         }
-        
+
 		$output = array();
-		
+
 		// Fast and accurate way to seek. First quick-seek before input up to
 		// a point just before the frame, and then accurately seek after input
 		// to the exact point.
@@ -697,14 +699,14 @@ class FFmpegMovie implements Serializable {
             '-i '.escapeshellarg($this->movieFile),
             '-f image2',
             '-ss '.$seek2,
-            '-vframes 1',            
+            '-vframes 1',
             $image_size,
             $quality,
             escapeshellarg($frameFilePath),
             '2>&1',
         )), $output, $retVar);
-        $output = join(PHP_EOL, $output);
 
+        $output = join(PHP_EOL, $output);
         // Cannot write frame to the data storage
         if (!file_exists($frameFilePath)) {
 			// Find error in output
@@ -715,32 +717,123 @@ class FFmpegMovie implements Serializable {
 			// Default file not found error
             throw new Exception('TMP image not found/written '. $frameFilePath);
         }
-        
+
         // Create gdimage and delete temporary image
         $gdImage = imagecreatefromjpeg($frameFilePath);
         if ($deleteTmp && is_writable($frameFilePath)) {
             unlink($frameFilePath);
         }
-        
+
         $frame = new FFmpegFrame($gdImage, $frameTime);
         imagedestroy($gdImage);
-        
+
         return $frame;
     }
-    
-    /**
-    * Returns the next key frame from the movie as an FFmpegFrame object. Returns false if the frame was not found. 
-    * 
-    * @return FFmpegFrame|boolean 
+	/**
+     * add an image in video
+     *
+     * @param string $img
+     * @param string $position
+     *
+     * @throws Exception
+     *
+     * @return boolean
+     *
     */
-    public function getNextKeyFrame() {        
+	 public function watermark($img, $position = 'cc') {
+
+        if (!is_file($img)) {
+			throw(new Exception('not found image'));
+        }
+		$image = new ImageResizer();
+		$image->load($img);
+		$wpart = $this->getFrameWidth() / 3;
+		$hpart = $this->getFrameHeight() / 3;
+		$needtonew = false;
+		$newimg = null;
+		if($image->getWidth() > $wpart){
+			$image->resizeToWidth($wpart);
+			$needtonew = true;
+		}
+		if($image->getHeight() > $hpart){
+			$image->resizeToWidth($hpart);
+			$needtonew = true;
+		}
+		if($needtonew){
+			$newimg = tempnam(sys_get_temp_dir(), 'watermark');
+			unlink($newimg);
+			$newimg.= '.png';
+			$image->save($newimg, IMAGETYPE_PNG);
+			$img = $newimg;
+		}
+		$h = substr($position, 0, 1);
+		$v = substr($position, 1, 1);
+
+		$overlay_x = '';
+		$overlay_y = '';
+		if($h == 'b'){
+			$overlay_y = '(main_h-overlay_h)';
+		}elseif($h == 'c'){
+			$overlay_y = '(main_h-overlay_h)/2';
+		}elseif($h == 't'){
+			$overlay_y = '5';
+		}
+
+		if($v == 'r'){
+			$overlay_x = '(main_w-overlay_w)';
+		}elseif($v == 'c'){
+			$overlay_x = '(main_w-overlay_w)/2';
+		}elseif($v == 'l'){
+			$overlay_x = '5';
+		}
+		$filter_complex = 'overlay=x='.$overlay_x.':y='.$overlay_y;
+		$ex = explode('.', $this->movieFile);
+		$newvideo = tempnam(sys_get_temp_dir(), 'watermark');
+		unlink($newvideo);
+		$newvideo .= '.'.$ex[count($ex)-1];
+        exec(implode(' ', array(
+            $this->ffmpegBinary,
+            '-i '.escapeshellarg($this->movieFile),
+			'-i '.escapeshellarg($img),
+            "-filter_complex \"{$filter_complex}\"",
+			'-threads 0',
+            escapeshellarg($newvideo),
+            '2>&1',
+        )), $output, $retVar);
+		if($newimg){
+			unlink($newimg);
+		}
+
+        $output = join(PHP_EOL, $output);
+        // Cannot write frame to the data storage
+        if (!file_exists($newvideo)) {
+			// Find error in output
+			preg_match(self::$REGEX_ERRORS, $output, $errors);
+			if ($errors) {
+				throw new Exception($errors[0]);
+			}
+			// Default file not found error
+            throw new Exception('new video not found/written '. $newvideo);
+        }
+
+		rename($newvideo, $this->movieFile);
+		$this->output = $this->provider->getOutput();
+
+        return true;
+    }
+    /**
+    * Returns the next key frame from the movie as an FFmpegFrame object. Returns false if the frame was not found.
+    *
+    * @return FFmpegFrame|boolean
+    */
+    public function getNextKeyFrame() {
         return $this->getFrame();
     }
-    
+
     public function __clone() {
         $this->provider = clone $this->provider;
     }
-    
+
     public function serialize() {
         $data = serialize(array(
             $this->ffmpegBinary,
@@ -748,11 +841,11 @@ class FFmpegMovie implements Serializable {
             $this->output,
             $this->frameNumber,
             $this->provider
-        ));                  
-        
+        ));
+
         return $data;
     }
-    
+
     public function unserialize($serialized) {
         list($this->ffmpegBinary,
              $this->movieFile,
@@ -760,6 +853,6 @@ class FFmpegMovie implements Serializable {
              $this->frameNumber,
              $this->provider
         ) = unserialize($serialized);
-        
+
     }
 }
